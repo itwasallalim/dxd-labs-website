@@ -15,8 +15,8 @@ const config: Config = {
         "dxt-gray": "#1a1a1a",
         "dxt-gray-2": "#222222",
         "dxt-light": "#f5f5f0",
-        "dxt-green": "#4ade80",
-        "dxt-green-dim": "#22c55e",
+        "dxt-green": "#ffffff",
+        "dxt-green-dim": "#cccccc",
         "dxt-muted": "#888888",
       },
       fontFamily: {

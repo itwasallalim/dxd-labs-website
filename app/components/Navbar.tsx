@@ -12,7 +12,7 @@ export default function Navbar() {
           {/* Logo */}
           <a href="#" className="flex items-center gap-1">
             <span className="text-xl font-bold tracking-tight text-white">DXT</span>
-            <span className="text-xl font-bold text-dxt-green">|</span>
+            <span className="text-xl font-bold text-white">|</span>
             <span className="text-xl font-bold tracking-tight text-white">AB</span>
           </a>
 
@@ -33,7 +33,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-4">
             <a
               href="#contact"
-              className="px-4 py-2 text-sm font-medium bg-dxt-green text-black rounded hover:bg-green-400 transition-colors duration-200"
+              className="px-4 py-2 text-sm font-medium bg-white text-black rounded hover:bg-white/90 transition-colors duration-200"
             >
               Join Research
             </a>
@@ -69,7 +69,7 @@ export default function Navbar() {
             ))}
             <a
               href="#contact"
-              className="inline-block mt-4 px-4 py-2 text-sm font-medium bg-dxt-green text-black rounded hover:bg-green-400 transition-colors"
+              className="inline-block mt-4 px-4 py-2 text-sm font-medium bg-white text-black rounded hover:bg-white/90 transition-colors"
             >
               Join Research
             </a>

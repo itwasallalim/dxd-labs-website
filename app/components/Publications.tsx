@@ -42,7 +42,7 @@ export default function Publications() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
           <div>
-            <div className="inline-block mb-4 text-xs font-semibold tracking-widest uppercase text-dxt-green">
+            <div className="inline-block mb-4 text-xs font-semibold tracking-widest uppercase text-white">
               Publications
             </div>
             <h2 className="text-4xl md:text-5xl font-black text-white">
@@ -51,7 +51,7 @@ export default function Publications() {
           </div>
           <a
             href="#"
-            className="inline-flex items-center gap-2 text-sm text-dxt-green hover:text-green-400 transition-colors"
+            className="inline-flex items-center gap-2 text-sm text-white hover:text-white/70 transition-colors"
           >
             View all publications
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,7 +64,7 @@ export default function Publications() {
           {publications.map((pub, i) => (
             <div
               key={i}
-              className="group bg-dxt-gray rounded-xl p-6 border border-white/5 hover:border-dxt-green/15 transition-all duration-300 cursor-pointer"
+              className="group bg-dxt-gray rounded-xl p-6 border border-white/5 hover:border-white/15 transition-all duration-300 cursor-pointer"
             >
               <div className="flex flex-col md:flex-row md:items-start gap-4 md:gap-8">
                 {/* Year */}
@@ -73,9 +73,9 @@ export default function Publications() {
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs text-dxt-green font-semibold">{pub.journal}</span>
+                    <span className="text-xs text-white font-semibold">{pub.journal}</span>
                   </div>
-                  <h3 className="text-base font-semibold text-white mb-2 leading-snug group-hover:text-dxt-green transition-colors duration-200">
+                  <h3 className="text-base font-semibold text-white mb-2 leading-snug group-hover:text-white/70 transition-colors duration-200">
                     {pub.title}
                   </h3>
                   <p className="text-sm text-dxt-muted mb-3">{pub.authors}</p>
@@ -94,7 +94,7 @@ export default function Publications() {
                 {/* Arrow */}
                 <div className="shrink-0 self-center">
                   <svg
-                    className="w-5 h-5 text-dxt-muted group-hover:text-dxt-green transition-colors"
+                    className="w-5 h-5 text-dxt-muted group-hover:text-white transition-colors"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"

@@ -52,7 +52,7 @@ export default function Hero() {
             ctx.beginPath();
             ctx.moveTo(nodes[i].x, nodes[i].y);
             ctx.lineTo(nodes[j].x, nodes[j].y);
-            ctx.strokeStyle = `rgba(74,222,128,${0.12 * (1 - dist / 140)})`;
+            ctx.strokeStyle = `rgba(255,255,255,${0.12 * (1 - dist / 140)})`;
             ctx.lineWidth = 0.5;
             ctx.stroke();
           }
@@ -63,7 +63,7 @@ export default function Hero() {
       nodes.forEach((n) => {
         ctx.beginPath();
         ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(74,222,128,0.5)";
+        ctx.fillStyle = "rgba(255,255,255,0.5)";
         ctx.fill();
       });
 
@@ -89,21 +89,21 @@ export default function Hero() {
       />
 
       {/* Radial glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_50%,rgba(74,222,128,0.07),transparent)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_50%,rgba(255,255,255,0.05),transparent)]" />
 
       {/* Grid overlay */}
       <div className="absolute inset-0 neural-grid opacity-40" />
 
       {/* Content */}
       <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
-        <div className="inline-flex items-center gap-2 mb-8 px-4 py-1.5 border border-dxt-green/30 rounded-full text-xs text-dxt-green tracking-widest uppercase">
-          <span className="w-1.5 h-1.5 rounded-full bg-dxt-green animate-pulse" />
+        <div className="inline-flex items-center gap-2 mb-8 px-4 py-1.5 border border-white/30 rounded-full text-xs text-white tracking-widest uppercase">
+          <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
           Biocomputing Research
         </div>
 
         <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight text-white leading-none mb-6">
           Where Biology<br />
-          <span className="text-dxt-green">Meets Computing</span>
+          <span className="text-white">Meets Computing</span>
         </h1>
 
         <p className="text-lg md:text-xl text-dxt-muted max-w-2xl mx-auto mb-10 leading-relaxed">
@@ -115,7 +115,7 @@ export default function Hero() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
             href="#research"
-            className="px-8 py-3.5 bg-dxt-green text-black font-semibold rounded hover:bg-green-400 transition-colors duration-200 text-sm"
+            className="px-8 py-3.5 bg-white text-black font-semibold rounded hover:bg-white/90 transition-colors duration-200 text-sm"
           >
             Explore Research
           </a>

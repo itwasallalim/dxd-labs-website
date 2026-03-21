@@ -10,17 +10,17 @@ export default function Footer() {
     <>
       {/* Footer CTA */}
       <section id="contact" className="bg-dxt-black py-24 lg:py-32 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_100%,rgba(74,222,128,0.08),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_100%,rgba(255,255,255,0.05),transparent)]" />
         <div className="absolute inset-0 neural-grid opacity-20" />
         <div className="relative z-10 max-w-4xl mx-auto px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 mb-8 px-4 py-1.5 border border-dxt-green/30 rounded-full text-xs text-dxt-green tracking-widest uppercase">
-            <span className="w-1.5 h-1.5 rounded-full bg-dxt-green animate-pulse" />
+          <div className="inline-flex items-center gap-2 mb-8 px-4 py-1.5 border border-white/30 rounded-full text-xs text-white tracking-widest uppercase">
+            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
             Join Us
           </div>
 
           <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-white mb-6 leading-tight">
             The Future of Computing<br />
-            <span className="text-dxt-green">Is Alive.</span>
+            <span className="text-white">Is Alive.</span>
           </h2>
 
           <p className="text-dxt-muted text-lg mb-10 max-w-xl mx-auto leading-relaxed">
@@ -31,7 +31,7 @@ export default function Footer() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
               href="mailto:research@dxtlabs.ai"
-              className="px-8 py-3.5 bg-dxt-green text-black font-semibold rounded hover:bg-green-400 transition-colors duration-200 text-sm"
+              className="px-8 py-3.5 bg-white text-black font-semibold rounded hover:bg-white/90 transition-colors duration-200 text-sm"
             >
               Apply to Research Program
             </a>
@@ -53,7 +53,7 @@ export default function Footer() {
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-1 mb-4">
                 <span className="text-xl font-bold text-white">DXT</span>
-                <span className="text-xl font-bold text-dxt-green">|</span>
+                <span className="text-xl font-bold text-white">|</span>
                 <span className="text-xl font-bold text-white">AB</span>
               </div>
               <p className="text-xs text-dxt-muted leading-relaxed">
@@ -88,7 +88,7 @@ export default function Footer() {
               &copy; {new Date().getFullYear()} DXTLabs. All rights reserved.
             </p>
             <div className="flex items-center gap-2 text-xs text-dxt-muted">
-              <span className="w-1.5 h-1.5 rounded-full bg-dxt-green" />
+              <span className="w-1.5 h-1.5 rounded-full bg-white" />
               All systems operational
             </div>
             <div className="flex items-center gap-6">

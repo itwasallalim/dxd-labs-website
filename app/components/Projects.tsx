@@ -50,9 +50,9 @@ const projects = [
 ];
 
 const statusColors: Record<string, string> = {
-  Active: "text-dxt-green border-dxt-green/30 bg-dxt-green/5",
-  Beta: "text-yellow-400 border-yellow-400/30 bg-yellow-400/5",
-  Research: "text-blue-400 border-blue-400/30 bg-blue-400/5",
+  Active: "text-white border-white/30 bg-white/5",
+  Beta: "text-white border-white/20 bg-white/5",
+  Research: "text-dxt-muted border-white/10 bg-white/3",
 };
 
 export default function Projects() {
@@ -61,7 +61,7 @@ export default function Projects() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
           <div>
-            <div className="inline-block mb-4 text-xs font-semibold tracking-widest uppercase text-dxt-green">
+            <div className="inline-block mb-4 text-xs font-semibold tracking-widest uppercase text-white">
               Projects
             </div>
             <h2 className="text-4xl md:text-5xl font-black text-white">
