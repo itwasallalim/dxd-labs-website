@@ -38,20 +38,20 @@ const publications = [
 
 export default function Publications() {
   return (
-    <section id="publications" className="bg-dxt-black py-24 lg:py-32">
+    <section id="publications" className="bg-white py-24 lg:py-32">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
           <div>
-            <div className="inline-block mb-4 text-xs font-semibold tracking-widest uppercase text-white">
+            <div className="inline-block mb-4 text-xs font-semibold tracking-widest uppercase text-gray-500">
               Publications
             </div>
-            <h2 className="text-4xl md:text-5xl font-black text-white">
+            <h2 className="text-4xl md:text-5xl font-black text-black">
               Advancing the Field
             </h2>
           </div>
           <a
             href="#"
-            className="inline-flex items-center gap-2 text-sm text-white hover:text-white/70 transition-colors"
+            className="inline-flex items-center gap-2 text-sm text-black hover:text-gray-500 transition-colors"
           >
             View all publications
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,26 +64,26 @@ export default function Publications() {
           {publications.map((pub, i) => (
             <div
               key={i}
-              className="group bg-dxt-gray rounded-xl p-6 border border-white/5 hover:border-white/15 transition-all duration-300 cursor-pointer"
+              className="group bg-gray-50 rounded-xl p-6 border border-gray-200 hover:border-gray-400 transition-all duration-300 cursor-pointer"
             >
               <div className="flex flex-col md:flex-row md:items-start gap-4 md:gap-8">
                 {/* Year */}
-                <div className="shrink-0 text-sm text-dxt-muted font-mono w-12">{pub.year}</div>
+                <div className="shrink-0 text-sm text-gray-400 font-mono w-12">{pub.year}</div>
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs text-white font-semibold">{pub.journal}</span>
+                    <span className="text-xs text-black font-semibold">{pub.journal}</span>
                   </div>
-                  <h3 className="text-base font-semibold text-white mb-2 leading-snug group-hover:text-white/70 transition-colors duration-200">
+                  <h3 className="text-base font-semibold text-black mb-2 leading-snug group-hover:text-gray-500 transition-colors duration-200">
                     {pub.title}
                   </h3>
-                  <p className="text-sm text-dxt-muted mb-3">{pub.authors}</p>
+                  <p className="text-sm text-gray-500 mb-3">{pub.authors}</p>
                   <div className="flex flex-wrap gap-2">
                     {pub.tags.map((tag, j) => (
                       <span
                         key={j}
-                        className="px-2 py-0.5 text-xs bg-dxt-black text-dxt-muted border border-white/10 rounded"
+                        className="px-2 py-0.5 text-xs bg-white text-gray-600 border border-gray-200 rounded"
                       >
                         {tag}
                       </span>
@@ -94,7 +94,7 @@ export default function Publications() {
                 {/* Arrow */}
                 <div className="shrink-0 self-center">
                   <svg
-                    className="w-5 h-5 text-dxt-muted group-hover:text-white transition-colors"
+                    className="w-5 h-5 text-gray-400 group-hover:text-black transition-colors"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"

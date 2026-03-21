@@ -50,25 +50,25 @@ const projects = [
 ];
 
 const statusColors: Record<string, string> = {
-  Active: "text-white border-white/30 bg-white/5",
-  Beta: "text-white border-white/20 bg-white/5",
-  Research: "text-dxt-muted border-white/10 bg-white/3",
+  Active: "text-black border-black/30 bg-black/5",
+  Beta: "text-gray-700 border-gray-400 bg-gray-100",
+  Research: "text-gray-500 border-gray-300 bg-gray-50",
 };
 
 export default function Projects() {
   return (
-    <section id="projects" className="bg-dxt-dark py-24 lg:py-32">
+    <section id="projects" className="bg-gray-50 py-24 lg:py-32">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
           <div>
-            <div className="inline-block mb-4 text-xs font-semibold tracking-widest uppercase text-white">
+            <div className="inline-block mb-4 text-xs font-semibold tracking-widest uppercase text-gray-500">
               Projects
             </div>
-            <h2 className="text-4xl md:text-5xl font-black text-white">
+            <h2 className="text-4xl md:text-5xl font-black text-black">
               Ongoing Projects
             </h2>
           </div>
-          <p className="text-dxt-muted max-w-sm">
+          <p className="text-gray-500 max-w-sm">
             Six flagship research initiatives pushing the boundaries of what biological computing can achieve.
           </p>
         </div>
@@ -77,12 +77,12 @@ export default function Projects() {
           {projects.map((project) => (
             <div
               key={project.id}
-              className="group bg-dxt-gray rounded-2xl p-6 border border-white/5 hover:border-dxt-green/20 transition-all duration-300 cursor-pointer flex flex-col"
+              className="group bg-white rounded-2xl p-6 border border-gray-200 hover:border-gray-400 transition-all duration-300 cursor-pointer flex flex-col"
             >
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h3 className="text-2xl font-black text-white tracking-tight">{project.name}</h3>
-                  <p className="text-xs text-dxt-green mt-0.5">{project.tagline}</p>
+                  <h3 className="text-2xl font-black text-black tracking-tight">{project.name}</h3>
+                  <p className="text-xs text-gray-500 mt-0.5">{project.tagline}</p>
                 </div>
                 <span
                   className={`text-xs px-2 py-1 rounded border font-medium ${statusColors[project.status]}`}
@@ -91,19 +91,19 @@ export default function Projects() {
                 </span>
               </div>
 
-              <p className="text-sm text-dxt-muted leading-relaxed flex-1 mb-6">
+              <p className="text-sm text-gray-600 leading-relaxed flex-1 mb-6">
                 {project.description}
               </p>
 
               {/* Progress bar */}
               <div>
                 <div className="flex justify-between items-center mb-1.5">
-                  <span className="text-xs text-dxt-muted">Progress</span>
-                  <span className="text-xs text-dxt-green font-mono">{project.progress}%</span>
+                  <span className="text-xs text-gray-400">Progress</span>
+                  <span className="text-xs text-black font-mono">{project.progress}%</span>
                 </div>
-                <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-dxt-green rounded-full transition-all duration-700"
+                    className="h-full bg-black rounded-full transition-all duration-700"
                     style={{ width: `${project.progress}%` }}
                   />
                 </div>
