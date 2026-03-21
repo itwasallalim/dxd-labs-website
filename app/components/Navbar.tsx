@@ -27,6 +27,12 @@ export default function Navbar() {
                 {link}
               </a>
             ))}
+            <a
+              href="/wiki"
+              className="text-sm text-dxt-muted hover:text-white transition-colors duration-200"
+            >
+              Wiki
+            </a>
           </div>
 
           {/* CTA */}
@@ -67,6 +73,13 @@ export default function Navbar() {
                 {link}
               </a>
             ))}
+            <a
+              href="/wiki"
+              className="block py-2 text-sm text-dxt-muted hover:text-white transition-colors"
+              onClick={() => setMobileOpen(false)}
+            >
+              Wiki
+            </a>
             <a
               href="#contact"
               className="inline-block mt-4 px-4 py-2 text-sm font-medium bg-white text-black rounded hover:bg-white/90 transition-colors"
