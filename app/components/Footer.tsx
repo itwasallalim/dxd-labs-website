@@ -42,6 +42,28 @@ export default function Footer() {
               Get in Touch
             </a>
           </div>
+
+          {/* Contact details */}
+          <div className="mt-14 grid sm:grid-cols-3 gap-6 text-left max-w-2xl mx-auto">
+            <div className="border border-white/10 rounded-lg px-5 py-4">
+              <p className="text-xs font-semibold tracking-widest uppercase text-white/40 mb-2">Research Inquiries</p>
+              <a href="mailto:research@dxtlabs.ai" className="text-sm text-dxt-muted hover:text-white transition-colors">
+                research@dxtlabs.ai
+              </a>
+            </div>
+            <div className="border border-white/10 rounded-lg px-5 py-4">
+              <p className="text-xs font-semibold tracking-widest uppercase text-white/40 mb-2">Partnerships</p>
+              <a href="mailto:partners@dxtlabs.ai" className="text-sm text-dxt-muted hover:text-white transition-colors">
+                partners@dxtlabs.ai
+              </a>
+            </div>
+            <div className="border border-white/10 rounded-lg px-5 py-4">
+              <p className="text-xs font-semibold tracking-widest uppercase text-white/40 mb-2">General</p>
+              <a href="mailto:hello@dxtlabs.ai" className="text-sm text-dxt-muted hover:text-white transition-colors">
+                hello@dxtlabs.ai
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 
