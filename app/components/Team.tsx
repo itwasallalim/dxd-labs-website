@@ -3,6 +3,7 @@ const team = [
     name: "Dr. Amara Chen",
     role: "Director of Neural Architecture",
     field: "Computational Neuroscience",
+    bio: "Pioneer in cortical circuit analysis and neural topology mapping. Dr. Chen's theoretical frameworks for hierarchical neural architectures form the scientific backbone of the CORTEX project and have been cited over 4,000 times across neuroscience and computer science literature.",
     initials: "AC",
     color: "from-gray-200 to-gray-400",
   },
@@ -10,6 +11,7 @@ const team = [
     name: "Prof. Marcus Webb",
     role: "Head of Nano Interface Lab",
     field: "Nano-Bio Engineering",
+    bio: "World-leading nano-engineer with two decades developing high-density neural electrode arrays. Prof. Webb's lab achieved the first simultaneous recording of 10,000+ neurons at single-cell resolution — a milestone foundational to DXTLabs' entire interface stack.",
     initials: "MW",
     color: "from-gray-300 to-gray-500",
   },
@@ -17,6 +19,7 @@ const team = [
     name: "Dr. Selin Yıldız",
     role: "Lead Research Scientist",
     field: "Adaptive Systems",
+    bio: "Expert in synaptic plasticity-inspired algorithms and self-organizing computational systems. Dr. Yıldız's work on emergent learning rules drives DXTLabs' adaptive architecture research, enabling systems that genuinely improve with experience rather than through explicit reprogramming.",
     initials: "SY",
     color: "from-gray-200 to-gray-400",
   },
@@ -24,6 +27,7 @@ const team = [
     name: "Dr. James Park",
     role: "Principal Engineer",
     field: "Biocomputing Systems",
+    bio: "Computational architect bridging wetware and silicon. Dr. Park leads integration of living neural organoids with purpose-built substrates through the NEXUS project, and co-authored landmark research on emergent computational properties in organoid networks.",
     initials: "JP",
     color: "from-gray-300 to-gray-500",
   },
@@ -31,6 +35,7 @@ const team = [
     name: "Dr. Leila Nouri",
     role: "Research Fellow",
     field: "Neural Signal Processing",
+    bio: "Specialist in decoding high-dimensional neural signals into structured computational representations. Dr. Nouri's research on plasticity-inspired learning rules is the theoretical basis for SYNAPSE's adaptive encoding layer and its real-time signal interpretation pipeline.",
     initials: "LN",
     color: "from-gray-200 to-gray-400",
   },
@@ -38,6 +43,7 @@ const team = [
     name: "Dr. Theo Brandt",
     role: "Systems Architect",
     field: "Distributed Bio-Computing",
+    bio: "Designer of large-scale distributed systems for biological computing. Dr. Brandt architected CORTEX's computational graph translation engine and leads infrastructure for ECHO — enabling massively parallel processing across geographically distributed neural simulation nodes.",
     initials: "TB",
     color: "from-gray-300 to-gray-500",
   },
@@ -66,7 +72,7 @@ export default function Team() {
           {team.map((member, i) => (
             <div
               key={i}
-              className="group bg-white rounded-2xl p-6 border border-gray-200 hover:border-gray-400 transition-all duration-300 cursor-pointer"
+              className="group bg-white rounded-2xl p-6 border border-gray-200 hover:border-gray-400 transition-all duration-300 cursor-pointer flex flex-col"
             >
               {/* Avatar */}
               <div
@@ -79,7 +85,8 @@ export default function Team() {
                 {member.field}
               </div>
               <h3 className="text-lg font-bold text-black mb-1">{member.name}</h3>
-              <p className="text-sm text-gray-600">{member.role}</p>
+              <p className="text-sm text-gray-500 mb-3">{member.role}</p>
+              <p className="text-sm text-gray-600 leading-relaxed">{member.bio}</p>
 
               <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
                 <span className="text-xs text-gray-400">View profile</span>
