@@ -1,5 +1,40 @@
 const publications = [
   {
+    year: "2026",
+    journal: "Nature",
+    title: "100,000-Neuron Simultaneous Recording via Adaptive Nano-Mesh Electrode Arrays with Real-Time Spike Sorting",
+    authors: "Webb, M., Yıldız, S., Brandt, T. et al.",
+    tags: ["Nano-Engineering", "High-Density Recording", "Spike Sorting"],
+  },
+  {
+    year: "2026",
+    journal: "Science",
+    title: "Living-Silicon Hybrid Processors: Organoid-Integrated Circuits for Fault-Tolerant Biological Computation",
+    authors: "Park, J., Chen, A., Nouri, L. et al.",
+    tags: ["Organoids", "Biocomputing", "Fault Tolerance"],
+  },
+  {
+    year: "2025",
+    journal: "Nature Nanotechnology",
+    title: "Sub-Micron Flexible Neural Probes with On-Probe Signal Conditioning for Chronic In Vivo Interfacing",
+    authors: "Webb, M., Brandt, T., Park, J. et al.",
+    tags: ["Neural Probes", "Nano-Engineering", "Chronic Interface"],
+  },
+  {
+    year: "2025",
+    journal: "Nature Biotechnology",
+    title: "Multi-Region Closed-Loop Brain-Computer Interface Enabling Bidirectional Communication Across Cortical Hemispheres",
+    authors: "Chen, A., Yıldız, S., Nouri, L. et al.",
+    tags: ["BCI", "Closed-Loop", "Neural Interface"],
+  },
+  {
+    year: "2025",
+    journal: "Cell Systems",
+    title: "CORTEX v2: Self-Optimizing Computational Graphs Derived from Continual Biological Neural Learning",
+    authors: "Brandt, T., Park, J., Chen, A. et al.",
+    tags: ["CORTEX", "Adaptive Systems", "Computational Framework"],
+  },
+  {
     year: "2024",
     journal: "Nature Neuroscience",
     title: "Bidirectional Neural-Silicon Interface with Sub-Millisecond Latency for Real-Time Biological Computing",
