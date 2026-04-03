@@ -56,38 +56,41 @@ const pillars = [
   },
 ];
 
+import RevealOnScroll from "./RevealOnScroll";
+
 export default function Pillars() {
   return (
     <section id="research" className="bg-white py-24 lg:py-32">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <div className="inline-block mb-4 text-xs font-semibold tracking-widest uppercase text-gray-500">
-            Core Research
+        <RevealOnScroll direction="up">
+          <div className="text-center mb-16">
+            <div className="inline-block mb-4 text-xs font-semibold tracking-widest uppercase text-gray-500">
+              Core Research
+            </div>
+            <h2 className="text-4xl md:text-5xl font-black text-black mb-4">
+              Three Pillars of Biocomputing
+            </h2>
+            <p className="text-gray-500 max-w-2xl mx-auto">
+              Our research is organized around three interconnected domains that together
+              define the frontier of biological computing.
+            </p>
           </div>
-          <h2 className="text-4xl md:text-5xl font-black text-black mb-4">
-            Three Pillars of Biocomputing
-          </h2>
-          <p className="text-gray-500 max-w-2xl mx-auto">
-            Our research is organized around three interconnected domains that together
-            define the frontier of biological computing.
-          </p>
-        </div>
+        </RevealOnScroll>
 
         <div className="grid md:grid-cols-3 gap-6">
           {pillars.map((pillar, i) => (
-            <div
-              key={i}
-              className="group relative bg-gray-50 rounded-2xl p-8 border border-gray-200 hover:border-gray-400 transition-all duration-300"
-            >
-              <div className="relative">
-                <div className="mb-6">{pillar.icon}</div>
-                <div className="text-xs text-gray-500 font-medium tracking-widest uppercase mb-2">
-                  {pillar.subtitle}
+            <RevealOnScroll key={i} direction="up" delay={i * 120}>
+              <div className="group relative bg-gray-50 rounded-2xl p-8 border border-gray-200 hover:border-gray-400 transition-all duration-300 h-full">
+                <div className="relative">
+                  <div className="mb-6">{pillar.icon}</div>
+                  <div className="text-xs text-gray-500 font-medium tracking-widest uppercase mb-2">
+                    {pillar.subtitle}
+                  </div>
+                  <h3 className="text-xl font-bold text-black mb-4">{pillar.title}</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">{pillar.description}</p>
                 </div>
-                <h3 className="text-xl font-bold text-black mb-4">{pillar.title}</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">{pillar.description}</p>
               </div>
-            </div>
+            </RevealOnScroll>
           ))}
         </div>
       </div>

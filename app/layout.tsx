@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import LoadingScreen from "./components/LoadingScreen";
 
 export const metadata: Metadata = {
   title: "DXTLabs — Where Biology Meets Computing",
@@ -14,6 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased bg-dxt-black text-white">
+        <LoadingScreen />
         {children}
       </body>
     </html>

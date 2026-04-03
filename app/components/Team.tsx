@@ -49,29 +49,33 @@ const team = [
   },
 ];
 
+import RevealOnScroll from "./RevealOnScroll";
+
 export default function Team() {
   return (
     <section id="team" className="bg-gray-50 py-24 lg:py-32">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
-          <div>
-            <div className="inline-block mb-4 text-xs font-semibold tracking-widest uppercase text-gray-500">
-              The Team
+        <RevealOnScroll direction="up">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+            <div>
+              <div className="inline-block mb-4 text-xs font-semibold tracking-widest uppercase text-gray-500">
+                The Team
+              </div>
+              <h2 className="text-4xl md:text-5xl font-black text-black">
+                World-Class Researchers
+              </h2>
             </div>
-            <h2 className="text-4xl md:text-5xl font-black text-black">
-              World-Class Researchers
-            </h2>
+            <p className="text-gray-500 max-w-sm">
+              Our interdisciplinary team brings together the world&apos;s leading minds
+              in neuroscience, engineering, and computer science.
+            </p>
           </div>
-          <p className="text-gray-500 max-w-sm">
-            Our interdisciplinary team brings together the world&apos;s leading minds
-            in neuroscience, engineering, and computer science.
-          </p>
-        </div>
+        </RevealOnScroll>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {team.map((member, i) => (
+            <RevealOnScroll key={i} direction="up" delay={i * 80}>
             <div
-              key={i}
               className="group bg-white rounded-2xl p-6 border border-gray-200 hover:border-gray-400 transition-all duration-300 cursor-pointer flex flex-col"
             >
               {/* Avatar */}
@@ -100,6 +104,7 @@ export default function Team() {
                 </svg>
               </div>
             </div>
+            </RevealOnScroll>
           ))}
         </div>
       </div>
