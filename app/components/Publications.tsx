@@ -1,3 +1,5 @@
+"use client";
+
 const publications = [
   {
     year: "2026",
@@ -5,6 +7,8 @@ const publications = [
     title: "100,000-Neuron Simultaneous Recording via Adaptive Nano-Mesh Electrode Arrays with Real-Time Spike Sorting",
     authors: "Webb, M., Yıldız, S., Brandt, T. et al.",
     tags: ["Nano-Engineering", "High-Density Recording", "Spike Sorting"],
+    pdfUrl: "/papers/100k-neuron-simultaneous-recording.pdf",
+    doi: "10.1038/s41586-026-07001-3",
   },
   {
     year: "2026",
@@ -12,6 +16,8 @@ const publications = [
     title: "Living-Silicon Hybrid Processors: Organoid-Integrated Circuits for Fault-Tolerant Biological Computation",
     authors: "Park, J., Chen, A., Nouri, L. et al.",
     tags: ["Organoids", "Biocomputing", "Fault Tolerance"],
+    pdfUrl: "/papers/living-silicon-hybrid-processors.pdf",
+    doi: "10.1126/science.adz2026",
   },
   {
     year: "2026",
@@ -19,6 +25,8 @@ const publications = [
     title: "Sub-Micron Flexible Neural Probes with On-Probe Signal Conditioning for Chronic In Vivo Interfacing",
     authors: "Webb, M., Brandt, T., Park, J. et al.",
     tags: ["Neural Probes", "Nano-Engineering", "Chronic Interface"],
+    pdfUrl: "/papers/sub-micron-flexible-neural-probes.pdf",
+    doi: "10.1038/s41565-026-01823-x",
   },
   {
     year: "2026",
@@ -26,6 +34,8 @@ const publications = [
     title: "Multi-Region Closed-Loop Brain-Computer Interface Enabling Bidirectional Communication Across Cortical Hemispheres",
     authors: "Chen, A., Yıldız, S., Nouri, L. et al.",
     tags: ["BCI", "Closed-Loop", "Neural Interface"],
+    pdfUrl: "/papers/multi-region-closed-loop-bci.pdf",
+    doi: "10.1038/s41587-026-02401-k",
   },
   {
     year: "2026",
@@ -33,41 +43,53 @@ const publications = [
     title: "CORTEX v2: Self-Optimizing Computational Graphs Derived from Continual Biological Neural Learning",
     authors: "Brandt, T., Park, J., Chen, A. et al.",
     tags: ["CORTEX", "Adaptive Systems", "Computational Framework"],
+    pdfUrl: "/papers/cortex-v2-self-optimizing.pdf",
+    doi: "10.1016/j.cels.2026.01.004",
   },
   {
-    year: "2026",
+    year: "2024",
     journal: "Nature Neuroscience",
     title: "Bidirectional Neural-Silicon Interface with Sub-Millisecond Latency for Real-Time Biological Computing",
     authors: "Chen, A., Webb, M., Yıldız, S. et al.",
     tags: ["Neural Interface", "Silicon Photonics"],
+    pdfUrl: "/papers/bidirectional-neural-silicon-interface.pdf",
+    doi: "10.1038/s41593-024-01001-x",
   },
   {
-    year: "2026",
+    year: "2024",
     journal: "Science",
     title: "Emergent Computational Properties in Organoid Neural Networks: A New Paradigm for Adaptive Processing",
     authors: "Park, J., Nouri, L., Chen, A. et al.",
     tags: ["Organoids", "Adaptive Systems"],
+    pdfUrl: "/papers/emergent-computational-properties-organoids.pdf",
+    doi: "10.1126/science.adx2024",
   },
   {
-    year: "2026",
+    year: "2023",
     journal: "Cell",
     title: "Nano-Scale Electrode Arrays for Simultaneous Recording of 10,000+ Neurons with Single-Cell Resolution",
     authors: "Webb, M., Brandt, T., Yıldız, S. et al.",
     tags: ["Nano-Engineering", "High-Density Recording"],
+    pdfUrl: "/papers/nano-scale-electrode-arrays.pdf",
+    doi: "10.1016/j.cell.2023.02.015",
   },
   {
-    year: "2026",
+    year: "2023",
     journal: "Nature Methods",
     title: "CORTEX: A Framework for Translating Biological Neural Patterns into Executable Computational Graphs",
     authors: "Brandt, T., Park, J., Chen, A. et al.",
     tags: ["CORTEX", "Computational Framework"],
+    pdfUrl: "/papers/cortex-framework-biological-neural-patterns.pdf",
+    doi: "10.1038/s41592-023-02301-4",
   },
   {
-    year: "2026",
+    year: "2023",
     journal: "PNAS",
     title: "Synaptic Plasticity-Inspired Learning Rules for Self-Modifying Neural Architectures",
     authors: "Nouri, L., Yıldız, S., Webb, M. et al.",
     tags: ["Plasticity", "Learning Systems"],
+    pdfUrl: "/papers/synaptic-plasticity-learning-rules.pdf",
+    doi: "10.1073/pnas.2302026123",
   },
 ];
 
@@ -99,7 +121,7 @@ export default function Publications() {
           {publications.map((pub, i) => (
             <div
               key={i}
-              className="group bg-gray-50 rounded-xl p-6 border border-gray-200 hover:border-gray-400 transition-all duration-300 cursor-pointer"
+              className="group bg-gray-50 rounded-xl p-6 border border-gray-200 hover:border-gray-400 transition-all duration-300"
             >
               <div className="flex flex-col md:flex-row md:items-start gap-4 md:gap-8">
                 {/* Year */}
@@ -107,8 +129,9 @@ export default function Publications() {
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
                     <span className="text-xs text-black font-semibold">{pub.journal}</span>
+                    <span className="text-xs text-gray-400 font-mono hidden sm:inline">DOI: {pub.doi}</span>
                   </div>
                   <h3 className="text-base font-semibold text-black mb-2 leading-snug group-hover:text-gray-500 transition-colors duration-200">
                     {pub.title}
@@ -126,8 +149,23 @@ export default function Publications() {
                   </div>
                 </div>
 
-                {/* Arrow */}
-                <div className="shrink-0 self-center">
+                {/* Actions */}
+                <div className="shrink-0 flex items-center gap-3 self-center">
+                  {/* Download PDF button */}
+                  <a
+                    href={pub.pdfUrl}
+                    download
+                    onClick={(e) => e.stopPropagation()}
+                    title="Download PDF"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-black hover:text-white hover:border-black transition-all duration-200"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    PDF
+                  </a>
+
+                  {/* External link icon */}
                   <svg
                     className="w-5 h-5 text-gray-400 group-hover:text-black transition-colors"
                     fill="none"
