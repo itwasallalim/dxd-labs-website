@@ -1,12 +1,169 @@
-const stats = [
-  { value: "12,847", label: "Active Neurons", unit: "cells" },
-  { value: "647", label: "Signal Frequency", unit: "Hz" },
-  { value: "96.2%", label: "Pattern Accuracy", unit: "recognition" },
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
+const BASE_STATS = [
+  { base: 12847, label: "Active Neurons", unit: "cells", variance: 50, barWidth: 72 },
+  { base: 647, label: "Signal Frequency", unit: "Hz", variance: 8, barWidth: 55 },
+  { base: 96.2, label: "Pattern Accuracy", unit: "recognition", variance: 0.3, barWidth: 88, isPercent: true },
+];
+
+function useCountUp(target: number, duration: number, active: boolean) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (!active) return;
+    let start = 0;
+    const step = target / (duration / 16);
+    const timer = setInterval(() => {
+      start += step;
+      if (start >= target) {
+        setValue(target);
+        clearInterval(timer);
+      } else {
+        setValue(Math.floor(start * 10) / 10);
+      }
+    }, 16);
+    return () => clearInterval(timer);
+  }, [active, target, duration]);
+  return value;
+}
+
+function LiveStat({
+  base,
+  label,
+  unit,
+  variance,
+  barWidth,
+  isPercent,
+  active,
+  delay,
+}: {
+  base: number;
+  label: string;
+  unit: string;
+  variance: number;
+  barWidth: number;
+  isPercent?: boolean;
+  active: boolean;
+  delay: number;
+}) {
+  const [live, setLive] = useState(base);
+  const [started, setStarted] = useState(false);
+  const counted = useCountUp(base, 1200 + delay, started);
+
+  useEffect(() => {
+    if (!active) return;
+    const t = setTimeout(() => setStarted(true), delay);
+    return () => clearTimeout(t);
+  }, [active, delay]);
+
+  // fluctuate after count-up completes
+  useEffect(() => {
+    if (!started) return;
+    const interval = setInterval(() => {
+      const delta = (Math.random() - 0.5) * 2 * variance;
+      setLive(
+        isPercent
+          ? Math.round((base + delta) * 10) / 10
+          : Math.round(base + delta)
+      );
+    }, 1800 + Math.random() * 1200);
+    return () => clearInterval(interval);
+  }, [started, base, variance, isPercent]);
+
+  const display = started ? live : counted;
+  const formatted = isPercent
+    ? `${display.toFixed(1)}%`
+    : display.toLocaleString();
+
+  return (
+    <div className="group">
+      <div className="flex items-baseline gap-3 mb-2">
+        <span
+          className="text-5xl font-black text-white tracking-tight tabular-nums transition-all duration-700"
+          style={{ fontVariantNumeric: "tabular-nums" }}
+        >
+          {formatted}
+        </span>
+        <span className="text-white text-sm font-mono uppercase tracking-wider">
+          {unit}
+        </span>
+      </div>
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-1 bg-white/10">
+          <div
+            className="h-full bg-white transition-all duration-1000 ease-out"
+            style={{ width: active ? `${barWidth}%` : "0%" }}
+          />
+        </div>
+        <span className="text-sm text-dxt-muted">{label}</span>
+      </div>
+    </div>
+  );
+}
+
+// Node positions used both in SVG and for the pulse animation
+const NODES = [
+  // outer
+  { cx: 250, cy: 50, r: 5 },
+  { cx: 400, cy: 130, r: 4 },
+  { cx: 450, cy: 280, r: 4 },
+  { cx: 380, cy: 420, r: 4 },
+  { cx: 250, cy: 460, r: 5 },
+  { cx: 120, cy: 420, r: 4 },
+  { cx: 50, cy: 280, r: 4 },
+  { cx: 100, cy: 130, r: 4 },
+  // mid
+  { cx: 250, cy: 120, r: 4 },
+  { cx: 360, cy: 180, r: 3.5 },
+  { cx: 380, cy: 290, r: 3.5 },
+  { cx: 310, cy: 380, r: 3.5 },
+  { cx: 190, cy: 380, r: 3.5 },
+  { cx: 120, cy: 290, r: 3.5 },
+  { cx: 140, cy: 180, r: 3.5 },
+  // inner
+  { cx: 250, cy: 170, r: 4 },
+  { cx: 320, cy: 210, r: 3 },
+  { cx: 340, cy: 290, r: 3 },
+  { cx: 290, cy: 340, r: 3 },
+  { cx: 210, cy: 340, r: 3 },
+  { cx: 160, cy: 290, r: 3 },
+  { cx: 180, cy: 210, r: 3 },
 ];
 
 export default function NeuronsThink() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const [visible, setVisible] = useState(false);
+  const [activeNode, setActiveNode] = useState<number | null>(null);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.2 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  // randomly fire node pulse
+  useEffect(() => {
+    if (!visible) return;
+    const interval = setInterval(() => {
+      setActiveNode(Math.floor(Math.random() * NODES.length));
+      setTimeout(() => setActiveNode(null), 400);
+    }, 600);
+    return () => clearInterval(interval);
+  }, [visible]);
+
   return (
-    <section className="bg-dxt-black py-24 lg:py-32 overflow-hidden">
+    <section ref={sectionRef} className="bg-dxt-black py-24 lg:py-32 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left: Neural visualization */}
@@ -15,50 +172,15 @@ export default function NeuronsThink() {
               {/* Background glow */}
               <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.06)_0%,transparent_70%)]" />
 
-              {/* SVG neural viz */}
               <svg
                 viewBox="0 0 500 500"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
                 className="w-full h-full"
               >
-                {/* Outer decorative ring */}
+                {/* Outer decorative rings */}
                 <circle cx="250" cy="250" r="230" stroke="#ffffff" strokeWidth="0.5" opacity="0.1" />
                 <circle cx="250" cy="250" r="200" stroke="#ffffff" strokeWidth="0.3" opacity="0.08" strokeDasharray="4 8" />
-
-                {/* Complex neural network */}
-                {/* Layer 1 - outer nodes */}
-                <circle cx="250" cy="50" r="5" fill="#ffffff" opacity="0.6" />
-                <circle cx="400" cy="130" r="4" fill="#ffffff" opacity="0.5" />
-                <circle cx="450" cy="280" r="4" fill="#ffffff" opacity="0.5" />
-                <circle cx="380" cy="420" r="4" fill="#ffffff" opacity="0.5" />
-                <circle cx="250" cy="460" r="5" fill="#ffffff" opacity="0.6" />
-                <circle cx="120" cy="420" r="4" fill="#ffffff" opacity="0.5" />
-                <circle cx="50" cy="280" r="4" fill="#ffffff" opacity="0.5" />
-                <circle cx="100" cy="130" r="4" fill="#ffffff" opacity="0.5" />
-
-                {/* Layer 2 - mid nodes */}
-                <circle cx="250" cy="120" r="4" fill="#ffffff" opacity="0.7" />
-                <circle cx="360" cy="180" r="3.5" fill="#ffffff" opacity="0.6" />
-                <circle cx="380" cy="290" r="3.5" fill="#ffffff" opacity="0.6" />
-                <circle cx="310" cy="380" r="3.5" fill="#ffffff" opacity="0.6" />
-                <circle cx="190" cy="380" r="3.5" fill="#ffffff" opacity="0.6" />
-                <circle cx="120" cy="290" r="3.5" fill="#ffffff" opacity="0.6" />
-                <circle cx="140" cy="180" r="3.5" fill="#ffffff" opacity="0.6" />
-
-                {/* Layer 3 - inner nodes */}
-                <circle cx="250" cy="170" r="4" fill="#ffffff" opacity="0.8" />
-                <circle cx="320" cy="210" r="3" fill="#ffffff" opacity="0.7" />
-                <circle cx="340" cy="290" r="3" fill="#ffffff" opacity="0.7" />
-                <circle cx="290" cy="340" r="3" fill="#ffffff" opacity="0.7" />
-                <circle cx="210" cy="340" r="3" fill="#ffffff" opacity="0.7" />
-                <circle cx="160" cy="290" r="3" fill="#ffffff" opacity="0.7" />
-                <circle cx="180" cy="210" r="3" fill="#ffffff" opacity="0.7" />
-
-                {/* Center */}
-                <circle cx="250" cy="250" r="12" fill="#ffffff" opacity="0.9" />
-                <circle cx="250" cy="250" r="20" stroke="#ffffff" strokeWidth="1" fill="none" opacity="0.3" />
-                <circle cx="250" cy="250" r="30" stroke="#ffffff" strokeWidth="0.5" fill="none" opacity="0.15" />
 
                 {/* Connections - outer to mid */}
                 <line x1="250" y1="50" x2="250" y2="120" stroke="#ffffff" strokeWidth="0.6" opacity="0.25" />
@@ -96,6 +218,71 @@ export default function NeuronsThink() {
                 <line x1="210" y1="340" x2="160" y2="290" stroke="#ffffff" strokeWidth="0.4" opacity="0.15" />
                 <line x1="160" y1="290" x2="180" y2="210" stroke="#ffffff" strokeWidth="0.4" opacity="0.15" />
                 <line x1="180" y1="210" x2="250" y2="170" stroke="#ffffff" strokeWidth="0.4" opacity="0.15" />
+
+                {/* Animated nodes */}
+                {NODES.map((node, i) => (
+                  <g key={i}>
+                    <circle
+                      cx={node.cx}
+                      cy={node.cy}
+                      r={node.r}
+                      fill="#ffffff"
+                      opacity={activeNode === i ? 1 : 0.6}
+                      style={{ transition: "opacity 0.3s, r 0.3s" }}
+                    />
+                    {activeNode === i && (
+                      <circle
+                        cx={node.cx}
+                        cy={node.cy}
+                        r={node.r * 3}
+                        fill="none"
+                        stroke="#ffffff"
+                        strokeWidth="0.8"
+                        opacity="0.4"
+                      >
+                        <animate
+                          attributeName="r"
+                          from={node.r}
+                          to={node.r * 4}
+                          dur="0.4s"
+                          fill="freeze"
+                        />
+                        <animate
+                          attributeName="opacity"
+                          from="0.6"
+                          to="0"
+                          dur="0.4s"
+                          fill="freeze"
+                        />
+                      </circle>
+                    )}
+                  </g>
+                ))}
+
+                {/* Center node */}
+                <circle cx="250" cy="250" r="12" fill="#ffffff" opacity="0.9">
+                  <animate
+                    attributeName="opacity"
+                    values="0.9;0.5;0.9"
+                    dur="2s"
+                    repeatCount="indefinite"
+                  />
+                </circle>
+                <circle cx="250" cy="250" r="20" stroke="#ffffff" strokeWidth="1" fill="none" opacity="0.3" />
+                <circle cx="250" cy="250" r="30" stroke="#ffffff" strokeWidth="0.5" fill="none" opacity="0.15">
+                  <animate
+                    attributeName="r"
+                    values="30;38;30"
+                    dur="3s"
+                    repeatCount="indefinite"
+                  />
+                  <animate
+                    attributeName="opacity"
+                    values="0.15;0.05;0.15"
+                    dur="3s"
+                    repeatCount="indefinite"
+                  />
+                </circle>
               </svg>
 
               {/* Floating labels */}
@@ -110,8 +297,11 @@ export default function NeuronsThink() {
 
           {/* Right: Stats */}
           <div>
-            <div className="inline-block mb-4 text-xs font-semibold tracking-widest uppercase text-white">
-              Live Data
+            <div className="inline-flex items-center gap-2 mb-4">
+              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+              <span className="text-xs font-semibold tracking-widest uppercase text-white">
+                Live Data
+              </span>
             </div>
             <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
               Watch Neurons Think
@@ -123,32 +313,26 @@ export default function NeuronsThink() {
             </p>
 
             <div className="space-y-8">
-              {stats.map((stat, i) => (
-                <div key={i} className="group">
-                  <div className="flex items-baseline gap-3 mb-2">
-                    <span className="text-5xl font-black text-white tracking-tight">
-                      {stat.value}
-                    </span>
-                    <span className="text-white text-sm font-mono uppercase tracking-wider">
-                      {stat.unit}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="h-px flex-1 bg-white/10">
-                      <div
-                        className="h-full bg-white"
-                        style={{ width: `${[72, 55, 88][i]}%` }}
-                      />
-                    </div>
-                    <span className="text-sm text-dxt-muted">{stat.label}</span>
-                  </div>
-                </div>
+              {BASE_STATS.map((stat, i) => (
+                <LiveStat
+                  key={i}
+                  base={stat.base}
+                  label={stat.label}
+                  unit={stat.unit}
+                  variance={stat.variance}
+                  barWidth={stat.barWidth}
+                  isPercent={stat.isPercent}
+                  active={visible}
+                  delay={i * 200}
+                />
               ))}
             </div>
 
             <div className="mt-10 flex items-center gap-3">
               <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
-              <span className="text-xs text-dxt-muted font-mono">Recording in progress — Lab 3, Node B</span>
+              <span className="text-xs text-dxt-muted font-mono">
+                Recording in progress — Lab 3, Node B
+              </span>
             </div>
           </div>
         </div>
