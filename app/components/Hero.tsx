@@ -2,34 +2,49 @@
 
 import { useEffect, useRef, useState } from "react";
 
-interface Node {
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface Neuron {
   x: number;
   y: number;
-  vx: number;
-  vy: number;
   r: number;
-  depth: number; // 0=back, 1=front
+  connections: number[];
+  state: "resting" | "firing" | "refractory";
+  fireTime: number;
+  refractoryDuration: number;
+  firingThreshold: number; // probability of cascading when signal arrives
   baseOpacity: number;
   pulseOffset: number;
+  vx: number; // slow drift
+  vy: number;
 }
 
-interface Ripple {
-  x: number;
-  y: number;
-  radius: number;
-  maxRadius: number;
-  alpha: number;
-  createdAt: number;
+interface Signal {
+  fromIdx: number;
+  toIdx: number;
+  progress: number; // 0 → 1
+  speed: number; // progress-units / sec
+  trail: { x: number; y: number; age: number }[];
 }
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const NEURON_COUNT = 110;
+const MAX_CONNECT_DIST = 165;
+const MAX_CONNECTIONS = 7;
+const FIRE_DURATION_MS = 180;
+const REFRACTORY_BASE_MS = 900;
+const SPONTANEOUS_RATE_MS = 1100; // avg ms between spontaneous fires
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function Hero() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mouseRef = useRef({ x: -9999, y: -9999 });
   const [visible, setVisible] = useState(false);
 
-  // Staggered text entrance
   useEffect(() => {
-    const t = setTimeout(() => setVisible(true), 100);
+    const t = setTimeout(() => setVisible(true), 80);
     return () => clearTimeout(t);
   }, []);
 
@@ -39,209 +54,314 @@ export default function Hero() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let width = 0;
-    let height = 0;
+    let W = 0;
+    let H = 0;
+
     const resize = () => {
-      width = canvas.offsetWidth;
-      height = canvas.offsetHeight;
-      canvas.width = width;
-      canvas.height = height;
+      W = canvas.offsetWidth;
+      H = canvas.offsetHeight;
+      canvas.width = W;
+      canvas.height = H;
     };
     resize();
     window.addEventListener("resize", resize);
 
-    // Mouse tracking
-    const onMouseMove = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      mouseRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    // ── Mouse ──
+    const onMove = (e: MouseEvent) => {
+      const r = canvas.getBoundingClientRect();
+      mouseRef.current = { x: e.clientX - r.left, y: e.clientY - r.top };
     };
-    canvas.addEventListener("mousemove", onMouseMove);
+    const onLeave = () => {
+      mouseRef.current = { x: -9999, y: -9999 };
+    };
+    canvas.addEventListener("mousemove", onMove);
+    canvas.addEventListener("mouseleave", onLeave);
 
-    // Ripples on click
-    const ripples: Ripple[] = [];
-    const onClick = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      ripples.push({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-        radius: 0,
-        maxRadius: 180,
-        alpha: 0.6,
-        createdAt: performance.now(),
+    // ── Click burst ──
+    const onClickBurst = (e: MouseEvent) => {
+      const r = canvas.getBoundingClientRect();
+      const cx = e.clientX - r.left;
+      const cy = e.clientY - r.top;
+      neurons.forEach((n, i) => {
+        const d = Math.hypot(n.x - cx, n.y - cy);
+        if (d < 120 && n.state === "resting") fireNeuron(i, performance.now());
       });
     };
-    canvas.addEventListener("click", onClick);
+    canvas.addEventListener("click", onClickBurst);
 
-    // Build nodes with depth layers
-    const COUNT_BACK = 50;
-    const COUNT_FRONT = 35;
-    const nodes: Node[] = [];
-
-    for (let i = 0; i < COUNT_BACK; i++) {
-      nodes.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.25,
-        vy: (Math.random() - 0.5) * 0.25,
-        r: Math.random() * 1.2 + 0.4,
-        depth: 0,
-        baseOpacity: 0.2 + Math.random() * 0.2,
+    // ── Build neurons ──
+    const neurons: Neuron[] = [];
+    for (let i = 0; i < NEURON_COUNT; i++) {
+      neurons.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: 1.2 + Math.random() * 2.2,
+        connections: [],
+        state: "resting",
+        fireTime: 0,
+        refractoryDuration: REFRACTORY_BASE_MS + Math.random() * 500,
+        firingThreshold: 0.25 + Math.random() * 0.45,
+        baseOpacity: 0.25 + Math.random() * 0.35,
         pulseOffset: Math.random() * Math.PI * 2,
-      });
-    }
-    for (let i = 0; i < COUNT_FRONT; i++) {
-      nodes.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.55,
-        vy: (Math.random() - 0.5) * 0.55,
-        r: Math.random() * 2.5 + 1,
-        depth: 1,
-        baseOpacity: 0.45 + Math.random() * 0.3,
-        pulseOffset: Math.random() * Math.PI * 2,
+        vx: (Math.random() - 0.5) * 0.18,
+        vy: (Math.random() - 0.5) * 0.18,
       });
     }
 
-    const CONNECT_DIST_BACK = 110;
-    const CONNECT_DIST_FRONT = 150;
-    const MOUSE_ATTRACT_DIST = 200;
-    const MOUSE_ATTRACT_FORCE = 0.012;
+    // ── Build connections (spatial, capped) ──
+    const buildConnections = () => {
+      neurons.forEach((n) => (n.connections = []));
+      for (let i = 0; i < NEURON_COUNT; i++) {
+        for (let j = i + 1; j < NEURON_COUNT; j++) {
+          if (neurons[i].connections.length >= MAX_CONNECTIONS) break;
+          if (neurons[j].connections.length >= MAX_CONNECTIONS) continue;
+          const dx = neurons[i].x - neurons[j].x;
+          const dy = neurons[i].y - neurons[j].y;
+          if (dx * dx + dy * dy < MAX_CONNECT_DIST * MAX_CONNECT_DIST) {
+            neurons[i].connections.push(j);
+            neurons[j].connections.push(i);
+          }
+        }
+      }
+    };
+    buildConnections();
 
+    // ── Fire a neuron ──
+    const signals: Signal[] = [];
+    const fireNeuron = (idx: number, now: number) => {
+      const n = neurons[idx];
+      if (n.state !== "resting") return;
+      n.state = "firing";
+      n.fireTime = now;
+      n.connections.forEach((j) => {
+        signals.push({
+          fromIdx: idx,
+          toIdx: j,
+          progress: 0,
+          speed: 0.55 + Math.random() * 0.5,
+          trail: [],
+        });
+      });
+    };
+
+    let lastSpontaneous = 0;
     let animId: number;
-    let t = 0;
+    let prevNow = performance.now();
 
     const draw = (now: number) => {
-      t = now * 0.001;
-      ctx.clearRect(0, 0, width, height);
+      const dt = Math.min((now - prevNow) / 1000, 0.05);
+      prevNow = now;
+      const t = now * 0.001;
 
-      const mx = mouseRef.current.x;
-      const my = mouseRef.current.y;
+      ctx.clearRect(0, 0, W, H);
 
-      // --- Update nodes ---
-      nodes.forEach((n) => {
-        // Mouse attraction
-        const dx = mx - n.x;
-        const dy = my - n.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < MOUSE_ATTRACT_DIST && dist > 0) {
-          const force = ((MOUSE_ATTRACT_DIST - dist) / MOUSE_ATTRACT_DIST) * MOUSE_ATTRACT_FORCE * (n.depth + 0.5);
-          n.vx += (dx / dist) * force;
-          n.vy += (dy / dist) * force;
-        }
-
-        // Dampen velocity
-        n.vx *= 0.99;
-        n.vy *= 0.99;
-
-        // Clamp speed
-        const speed = Math.sqrt(n.vx * n.vx + n.vy * n.vy);
-        const maxSpeed = n.depth === 1 ? 1.2 : 0.6;
-        if (speed > maxSpeed) {
-          n.vx = (n.vx / speed) * maxSpeed;
-          n.vy = (n.vy / speed) * maxSpeed;
-        }
-
+      // ── Slow drift ──
+      neurons.forEach((n) => {
         n.x += n.vx;
         n.y += n.vy;
-
-        // Wrap around edges (softer)
-        if (n.x < -20) n.x = width + 20;
-        if (n.x > width + 20) n.x = -20;
-        if (n.y < -20) n.y = height + 20;
-        if (n.y > height + 20) n.y = -20;
+        if (n.x < 0 || n.x > W) n.vx *= -1;
+        if (n.y < 0 || n.y > H) n.vy *= -1;
       });
 
-      // --- Draw edges ---
-      const count = nodes.length;
-      for (let i = 0; i < count; i++) {
-        for (let j = i + 1; j < count; j++) {
-          const a = nodes[i];
-          const b = nodes[j];
-          // Only connect within same depth layer or adjacent
-          if (Math.abs(a.depth - b.depth) > 0.5) continue;
+      // ── State transitions ──
+      neurons.forEach((n) => {
+        if (n.state === "firing" && now - n.fireTime > FIRE_DURATION_MS)
+          n.state = "refractory";
+        else if (
+          n.state === "refractory" &&
+          now - n.fireTime > n.refractoryDuration
+        )
+          n.state = "resting";
+      });
 
-          const dx = a.x - b.x;
-          const dy = a.y - b.y;
-          const dist2 = dx * dx + dy * dy;
-          const maxDist = a.depth === 1 ? CONNECT_DIST_FRONT : CONNECT_DIST_BACK;
-          if (dist2 > maxDist * maxDist) continue;
+      // ── Spontaneous firing ──
+      if (now - lastSpontaneous > SPONTANEOUS_RATE_MS) {
+        const resting = neurons.reduce<number[]>((a, n, i) => {
+          if (n.state === "resting") a.push(i);
+          return a;
+        }, []);
+        if (resting.length) {
+          fireNeuron(resting[Math.floor(Math.random() * resting.length)], now);
+        }
+        lastSpontaneous = now + (Math.random() - 0.5) * 400;
+      }
 
-          const dist = Math.sqrt(dist2);
-          const alpha = (1 - dist / maxDist) * (a.depth === 1 ? 0.25 : 0.1);
+      // ── Mouse proximity ──
+      const { x: mx, y: my } = mouseRef.current;
+      if (mx > 0) {
+        neurons.forEach((n, i) => {
+          if (n.state !== "resting") return;
+          const d = Math.hypot(n.x - mx, n.y - my);
+          if (d < 90 && Math.random() < 0.006) fireNeuron(i, now);
+        });
+      }
 
-          const grad = ctx.createLinearGradient(a.x, a.y, b.x, b.y);
-          grad.addColorStop(0, `rgba(255,255,255,${alpha * (0.8 + 0.2 * Math.sin(t * 1.2 + a.pulseOffset))})`);
-          grad.addColorStop(1, `rgba(255,255,255,${alpha * (0.8 + 0.2 * Math.sin(t * 1.2 + b.pulseOffset))})`);
-
+      // ── Draw resting connection lines (very dim) ──
+      for (let i = 0; i < NEURON_COUNT; i++) {
+        const a = neurons[i];
+        for (const j of a.connections) {
+          if (j <= i) continue;
+          const b = neurons[j];
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
           ctx.lineTo(b.x, b.y);
-          ctx.strokeStyle = grad;
-          ctx.lineWidth = a.depth === 1 ? 0.7 : 0.35;
+          ctx.strokeStyle = "rgba(255,255,255,0.045)";
+          ctx.lineWidth = 0.35;
           ctx.stroke();
         }
       }
 
-      // --- Draw nodes ---
-      nodes.forEach((n) => {
-        const pulse = 0.8 + 0.2 * Math.sin(t * 2 + n.pulseOffset);
-        const op = n.baseOpacity * pulse;
-        const r = n.r * (0.9 + 0.1 * pulse);
+      // ── Update & draw signals ──
+      for (let i = signals.length - 1; i >= 0; i--) {
+        const sig = signals[i];
+        const from = neurons[sig.fromIdx];
+        const to = neurons[sig.toIdx];
 
-        if (n.depth === 1) {
-          // Glow for front nodes
-          const grd = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, r * 4);
-          grd.addColorStop(0, `rgba(255,255,255,${op * 0.5})`);
-          grd.addColorStop(1, `rgba(255,255,255,0)`);
-          ctx.beginPath();
-          ctx.arc(n.x, n.y, r * 4, 0, Math.PI * 2);
-          ctx.fillStyle = grd;
-          ctx.fill();
-        }
+        // Current position
+        const px = from.x + (to.x - from.x) * sig.progress;
+        const py = from.y + (to.y - from.y) * sig.progress;
 
-        ctx.beginPath();
-        ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${op})`;
-        ctx.fill();
-      });
+        // Record trail point
+        sig.trail.push({ x: px, y: py, age: 0 });
 
-      // --- Draw mouse proximity highlight ---
-      if (mx > 0 && mx < width) {
-        const grd = ctx.createRadialGradient(mx, my, 0, mx, my, MOUSE_ATTRACT_DIST);
-        grd.addColorStop(0, "rgba(255,255,255,0.04)");
-        grd.addColorStop(1, "rgba(255,255,255,0)");
-        ctx.beginPath();
-        ctx.arc(mx, my, MOUSE_ATTRACT_DIST, 0, Math.PI * 2);
-        ctx.fillStyle = grd;
-        ctx.fill();
-      }
+        sig.progress += sig.speed * dt;
 
-      // --- Draw ripples ---
-      for (let i = ripples.length - 1; i >= 0; i--) {
-        const rip = ripples[i];
-        const elapsed = (now - rip.createdAt) / 1000;
-        rip.radius = rip.maxRadius * Math.min(elapsed * 1.8, 1);
-        rip.alpha = Math.max(0, 0.55 * (1 - elapsed * 1.4));
+        // Age trail points
+        sig.trail.forEach((pt) => (pt.age += dt));
 
-        if (rip.alpha <= 0) {
-          ripples.splice(i, 1);
+        // Remove old trail
+        while (sig.trail.length > 0 && sig.trail[0].age > 0.25)
+          sig.trail.shift();
+
+        // Signal arrived
+        if (sig.progress >= 1) {
+          if (to.state === "resting" && Math.random() < to.firingThreshold)
+            fireNeuron(sig.toIdx, now);
+          signals.splice(i, 1);
           continue;
         }
 
+        // Draw lit-up connection line segment (from → current position)
+        const gradient = ctx.createLinearGradient(from.x, from.y, px, py);
+        gradient.addColorStop(0, "rgba(255,255,255,0)");
+        gradient.addColorStop(0.6, "rgba(255,255,255,0.12)");
+        gradient.addColorStop(1, "rgba(255,255,255,0.35)");
         ctx.beginPath();
-        ctx.arc(rip.x, rip.y, rip.radius, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(255,255,255,${rip.alpha})`;
-        ctx.lineWidth = 1.5;
+        ctx.moveTo(from.x, from.y);
+        ctx.lineTo(px, py);
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 0.8;
         ctx.stroke();
 
-        // Second ring slightly behind
-        if (rip.radius > 20) {
+        // Draw trail glow
+        sig.trail.forEach((pt) => {
+          const fade = 1 - pt.age / 0.25;
+          const grd = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, 5);
+          grd.addColorStop(0, `rgba(180,210,255,${0.25 * fade})`);
+          grd.addColorStop(1, "rgba(0,0,0,0)");
           ctx.beginPath();
-          ctx.arc(rip.x, rip.y, rip.radius * 0.6, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(255,255,255,${rip.alpha * 0.4})`;
-          ctx.lineWidth = 0.8;
+          ctx.arc(pt.x, pt.y, 5, 0, Math.PI * 2);
+          ctx.fillStyle = grd;
+          ctx.fill();
+        });
+
+        // Signal particle core
+        const particleGrd = ctx.createRadialGradient(px, py, 0, px, py, 9);
+        particleGrd.addColorStop(0, "rgba(255,255,255,1)");
+        particleGrd.addColorStop(0.3, "rgba(200,225,255,0.55)");
+        particleGrd.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.beginPath();
+        ctx.arc(px, py, 9, 0, Math.PI * 2);
+        ctx.fillStyle = particleGrd;
+        ctx.fill();
+
+        // Bright dot
+        ctx.beginPath();
+        ctx.arc(px, py, 1.8, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255,255,255,1)";
+        ctx.fill();
+      }
+
+      // ── Draw neurons ──
+      neurons.forEach((n) => {
+        const pulse = 0.75 + 0.25 * Math.sin(t * 1.8 + n.pulseOffset);
+
+        if (n.state === "firing") {
+          const elapsed = now - n.fireTime;
+          const prog = Math.min(elapsed / FIRE_DURATION_MS, 1);
+
+          // Expanding ring
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, n.r + prog * 28, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(255,255,255,${0.75 * (1 - prog)})`;
+          ctx.lineWidth = 1.5;
           ctx.stroke();
+
+          // Second ring (slight delay)
+          if (prog > 0.15) {
+            const p2 = (prog - 0.15) / 0.85;
+            ctx.beginPath();
+            ctx.arc(n.x, n.y, n.r + p2 * 16, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(200,220,255,${0.4 * (1 - p2)})`;
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+          }
+
+          // Bright glow halo
+          const halo = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 9);
+          halo.addColorStop(0, "rgba(255,255,255,0.95)");
+          halo.addColorStop(0.2, "rgba(210,230,255,0.35)");
+          halo.addColorStop(0.6, "rgba(180,210,255,0.08)");
+          halo.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, n.r * 9, 0, Math.PI * 2);
+          ctx.fillStyle = halo;
+          ctx.fill();
+
+          // Core
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, n.r * 1.6, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(255,255,255,1)";
+          ctx.fill();
+        } else {
+          // Resting / refractory
+          const op =
+            n.state === "refractory" ? 0.12 : n.baseOpacity * pulse;
+
+          // Soft glow on brighter nodes
+          if (op > 0.35) {
+            const grd = ctx.createRadialGradient(
+              n.x,
+              n.y,
+              0,
+              n.x,
+              n.y,
+              n.r * 4
+            );
+            grd.addColorStop(0, `rgba(255,255,255,${op * 0.25})`);
+            grd.addColorStop(1, "rgba(0,0,0,0)");
+            ctx.beginPath();
+            ctx.arc(n.x, n.y, n.r * 4, 0, Math.PI * 2);
+            ctx.fillStyle = grd;
+            ctx.fill();
+          }
+
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, n.r * (n.state === "refractory" ? 0.65 : 1), 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255,255,255,${op})`;
+          ctx.fill();
         }
+      });
+
+      // ── Mouse glow ──
+      if (mx > 0 && mx < W) {
+        const mgrd = ctx.createRadialGradient(mx, my, 0, mx, my, 130);
+        mgrd.addColorStop(0, "rgba(255,255,255,0.05)");
+        mgrd.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.beginPath();
+        ctx.arc(mx, my, 130, 0, Math.PI * 2);
+        ctx.fillStyle = mgrd;
+        ctx.fill();
       }
 
       animId = requestAnimationFrame(draw);
@@ -251,8 +371,9 @@ export default function Hero() {
 
     return () => {
       window.removeEventListener("resize", resize);
-      canvas.removeEventListener("mousemove", onMouseMove);
-      canvas.removeEventListener("click", onClick);
+      canvas.removeEventListener("mousemove", onMove);
+      canvas.removeEventListener("mouseleave", onLeave);
+      canvas.removeEventListener("click", onClickBurst);
       cancelAnimationFrame(animId);
     };
   }, []);
@@ -262,28 +383,29 @@ export default function Hero() {
       id="about"
       className="relative min-h-screen flex items-center justify-center overflow-hidden bg-dxt-black"
     >
-      {/* Particle canvas — interactive */}
+      {/* Neural simulation canvas */}
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full"
         style={{ cursor: "crosshair" }}
       />
 
-      {/* Layered radial glows */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_50%_40%,rgba(255,255,255,0.06),transparent)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_30%_at_50%_50%,rgba(255,255,255,0.03),transparent)]" />
+      {/* Atmospheric glows */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_75%_55%_at_50%_40%,rgba(255,255,255,0.055),transparent)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_35%_25%_at_50%_50%,rgba(255,255,255,0.025),transparent)]" />
 
-      {/* Grid overlay */}
-      <div className="absolute inset-0 neural-grid opacity-30" />
+      {/* Grid */}
+      <div className="absolute inset-0 neural-grid opacity-25" />
 
-      {/* Content with staggered entrance */}
+      {/* Staggered content entrance */}
       <div className="relative z-10 text-center px-6 max-w-5xl mx-auto select-none">
+
         {/* Badge */}
         <div
-          className="inline-flex items-center gap-2 mb-8 px-4 py-1.5 border border-white/30 rounded-full text-xs text-white tracking-widest uppercase transition-all duration-700"
+          className="inline-flex items-center gap-2 mb-8 px-4 py-1.5 border border-white/25 rounded-full text-xs text-white tracking-widest uppercase transition-all duration-700 ease-out"
           style={{
             opacity: visible ? 1 : 0,
-            transform: visible ? "translateY(0)" : "translateY(12px)",
+            transform: visible ? "translateY(0)" : "translateY(10px)",
             transitionDelay: "0ms",
           }}
         >
@@ -293,11 +415,11 @@ export default function Hero() {
 
         {/* Headline */}
         <h1
-          className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight text-white leading-none mb-6 transition-all duration-700"
+          className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight text-white leading-none mb-6 transition-all duration-700 ease-out"
           style={{
             opacity: visible ? 1 : 0,
-            transform: visible ? "translateY(0)" : "translateY(20px)",
-            transitionDelay: "150ms",
+            transform: visible ? "translateY(0)" : "translateY(22px)",
+            transitionDelay: "160ms",
           }}
         >
           Where Biology
@@ -305,13 +427,13 @@ export default function Hero() {
           <span className="text-white">Meets Computing</span>
         </h1>
 
-        {/* Subtext */}
+        {/* Body */}
         <p
-          className="text-lg md:text-xl text-dxt-muted max-w-2xl mx-auto mb-10 leading-relaxed transition-all duration-700"
+          className="text-lg md:text-xl text-dxt-muted max-w-2xl mx-auto mb-10 leading-relaxed transition-all duration-700 ease-out"
           style={{
             opacity: visible ? 1 : 0,
             transform: visible ? "translateY(0)" : "translateY(16px)",
-            transitionDelay: "300ms",
+            transitionDelay: "320ms",
           }}
         >
           We bridge the gap between neuroscience and computer science, harnessing
@@ -321,11 +443,11 @@ export default function Hero() {
 
         {/* CTAs */}
         <div
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 transition-all duration-700"
+          className="flex flex-col sm:flex-row items-center justify-center gap-4 transition-all duration-700 ease-out"
           style={{
             opacity: visible ? 1 : 0,
             transform: visible ? "translateY(0)" : "translateY(12px)",
-            transitionDelay: "450ms",
+            transitionDelay: "480ms",
           }}
         >
           <a
@@ -342,21 +464,23 @@ export default function Hero() {
           </a>
         </div>
 
-        {/* Scroll hint */}
+        {/* Hint */}
         <div
-          className="mt-16 flex flex-col items-center gap-2 transition-all duration-700"
+          className="mt-14 flex flex-col items-center gap-2 transition-all duration-700 ease-out"
           style={{
-            opacity: visible ? 0.4 : 0,
-            transitionDelay: "700ms",
+            opacity: visible ? 0.35 : 0,
+            transitionDelay: "750ms",
           }}
         >
-          <span className="text-xs text-white font-mono tracking-widest uppercase">Scroll</span>
-          <div className="w-px h-8 bg-gradient-to-b from-white to-transparent" />
+          <span className="text-[10px] text-white font-mono tracking-[0.2em] uppercase">
+            move cursor · click to fire
+          </span>
+          <div className="w-px h-7 bg-gradient-to-b from-white to-transparent" />
         </div>
       </div>
 
-      {/* Bottom fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-dxt-black to-transparent" />
+      {/* Bottom vignette */}
+      <div className="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-dxt-black to-transparent" />
     </section>
   );
 }
