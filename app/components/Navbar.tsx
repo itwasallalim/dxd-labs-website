@@ -18,7 +18,7 @@ export default function Navbar() {
 
           {/* Desktop Nav Links */}
           <div className="hidden md:flex items-center gap-8">
-            {["About", "Research", "Team", "Projects", "Publications"].map((link) => (
+            {["About", "Research", "Team", "Projects", "Publications", "News"].map((link) => (
               <a
                 key={link}
                 href={`#${link.toLowerCase()}`}
@@ -27,12 +27,6 @@ export default function Navbar() {
                 {link}
               </a>
             ))}
-            <a
-              href="/wiki"
-              className="text-sm text-dxt-muted hover:text-white transition-colors duration-200"
-            >
-              Wiki
-            </a>
           </div>
 
           {/* CTA */}
@@ -63,7 +57,7 @@ export default function Navbar() {
         {/* Mobile menu */}
         {mobileOpen && (
           <div className="md:hidden py-4 border-t border-white/5">
-            {["About", "Research", "Team", "Projects", "Publications"].map((link) => (
+            {["About", "Research", "Team", "Projects", "Publications", "News"].map((link) => (
               <a
                 key={link}
                 href={`#${link.toLowerCase()}`}
@@ -73,13 +67,6 @@ export default function Navbar() {
                 {link}
               </a>
             ))}
-            <a
-              href="/wiki"
-              className="block py-2 text-sm text-dxt-muted hover:text-white transition-colors"
-              onClick={() => setMobileOpen(false)}
-            >
-              Wiki
-            </a>
             <a
               href="#contact"
               className="inline-block mt-4 px-4 py-2 text-sm font-medium bg-white text-black rounded hover:bg-white/90 transition-colors"

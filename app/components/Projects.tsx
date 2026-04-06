@@ -6,6 +6,8 @@ const projects = [
     description: "A unified framework for translating cortical activity patterns into executable computational graphs, enabling real-time neural programming.",
     status: "Active",
     progress: 78,
+    link: "#publications",
+    linkLabel: "Read paper",
   },
   {
     id: "SYNAPSE",
@@ -14,6 +16,8 @@ const projects = [
     description: "High-bandwidth bidirectional neural interface protocol enabling sub-millisecond communication between biological and silicon substrates.",
     status: "Active",
     progress: 65,
+    link: "https://github.com/dxtlabs/synapse",
+    linkLabel: "GitHub",
   },
   {
     id: "GENESIS",
@@ -22,6 +26,8 @@ const projects = [
     description: "Self-generating neural network architectures that evolve through biologically-inspired growth rules and environmental feedback signals.",
     status: "Active",
     progress: 42,
+    link: "#publications",
+    linkLabel: "Read paper",
   },
   {
     id: "ECHO",
@@ -30,6 +36,8 @@ const projects = [
     description: "A distributed computing platform that leverages emergent properties in large-scale neural networks for massively parallel problem solving.",
     status: "Beta",
     progress: 89,
+    link: "https://github.com/dxtlabs/echo",
+    linkLabel: "GitHub",
   },
   {
     id: "NEXUS",
@@ -38,6 +46,8 @@ const projects = [
     description: "Purpose-built silicon substrate for hosting and interfacing with living neural organoids, bridging the physical and computational domains.",
     status: "Research",
     progress: 31,
+    link: "mailto:research@dxtlabs.ai?subject=NEXUS%20Collaboration",
+    linkLabel: "Collaborate",
   },
   {
     id: "ATLAS",
@@ -46,6 +56,8 @@ const projects = [
     description: "Mapping and modeling the dynamic topological changes in neural networks over time to predict and guide adaptive computational behavior.",
     status: "Active",
     progress: 57,
+    link: "#publications",
+    linkLabel: "Read paper",
   },
 ];
 
@@ -96,7 +108,7 @@ export default function Projects() {
               </p>
 
               {/* Progress bar */}
-              <div>
+              <div className="mb-4">
                 <div className="flex justify-between items-center mb-1.5">
                   <span className="text-xs text-gray-400">Progress</span>
                   <span className="text-xs text-black font-mono">{project.progress}%</span>
@@ -108,6 +120,20 @@ export default function Projects() {
                   />
                 </div>
               </div>
+
+              {/* Link */}
+              <a
+                href={project.link}
+                target={project.link.startsWith("http") ? "_blank" : undefined}
+                rel={project.link.startsWith("http") ? "noopener noreferrer" : undefined}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-black hover:opacity-60 transition-opacity"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {project.linkLabel}
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </a>
             </div>
           ))}
         </div>

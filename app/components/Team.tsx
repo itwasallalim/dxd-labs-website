@@ -5,7 +5,9 @@ const team = [
     field: "Computational Neuroscience",
     bio: "Pioneer in cortical circuit analysis and neural topology mapping. Dr. Chen's theoretical frameworks for hierarchical neural architectures form the scientific backbone of the CORTEX project and have been cited over 4,000 times across neuroscience and computer science literature.",
     initials: "AC",
-    color: "from-gray-200 to-gray-400",
+    bg: "bg-slate-900",
+    text: "text-white",
+    project: "CORTEX",
   },
   {
     name: "Prof. Marcus Webb",
@@ -13,7 +15,9 @@ const team = [
     field: "Nano-Bio Engineering",
     bio: "World-leading nano-engineer with two decades developing high-density neural electrode arrays. Prof. Webb's lab achieved the first simultaneous recording of 10,000+ neurons at single-cell resolution — a milestone foundational to DXTLabs' entire interface stack.",
     initials: "MW",
-    color: "from-gray-300 to-gray-500",
+    bg: "bg-zinc-700",
+    text: "text-white",
+    project: "NEXUS",
   },
   {
     name: "Dr. Selin Yıldız",
@@ -21,7 +25,9 @@ const team = [
     field: "Adaptive Systems",
     bio: "Expert in synaptic plasticity-inspired algorithms and self-organizing computational systems. Dr. Yıldız's work on emergent learning rules drives DXTLabs' adaptive architecture research, enabling systems that genuinely improve with experience rather than through explicit reprogramming.",
     initials: "SY",
-    color: "from-gray-200 to-gray-400",
+    bg: "bg-stone-800",
+    text: "text-white",
+    project: "GENESIS",
   },
   {
     name: "Dr. James Park",
@@ -29,7 +35,9 @@ const team = [
     field: "Biocomputing Systems",
     bio: "Computational architect bridging wetware and silicon. Dr. Park leads integration of living neural organoids with purpose-built substrates through the NEXUS project, and co-authored landmark research on emergent computational properties in organoid networks.",
     initials: "JP",
-    color: "from-gray-300 to-gray-500",
+    bg: "bg-neutral-600",
+    text: "text-white",
+    project: "NEXUS",
   },
   {
     name: "Dr. Leila Nouri",
@@ -37,7 +45,9 @@ const team = [
     field: "Neural Signal Processing",
     bio: "Specialist in decoding high-dimensional neural signals into structured computational representations. Dr. Nouri's research on plasticity-inspired learning rules is the theoretical basis for SYNAPSE's adaptive encoding layer and its real-time signal interpretation pipeline.",
     initials: "LN",
-    color: "from-gray-200 to-gray-400",
+    bg: "bg-gray-800",
+    text: "text-white",
+    project: "SYNAPSE",
   },
   {
     name: "Dr. Theo Brandt",
@@ -45,7 +55,9 @@ const team = [
     field: "Distributed Bio-Computing",
     bio: "Designer of large-scale distributed systems for biological computing. Dr. Brandt architected CORTEX's computational graph translation engine and leads infrastructure for ECHO — enabling massively parallel processing across geographically distributed neural simulation nodes.",
     initials: "TB",
-    color: "from-gray-300 to-gray-500",
+    bg: "bg-black",
+    text: "text-white",
+    project: "ECHO",
   },
 ];
 
@@ -80,28 +92,39 @@ export default function Team() {
             >
               {/* Avatar */}
               <div
-                className={`w-16 h-16 rounded-xl bg-gradient-to-br ${member.color} flex items-center justify-center mb-4 text-black font-bold text-lg`}
+                className={`w-16 h-16 rounded-2xl ${member.bg} flex items-center justify-center mb-4 relative overflow-hidden`}
               >
-                {member.initials}
+                {/* Subtle grid pattern inside avatar */}
+                <div className="absolute inset-0 opacity-10"
+                  style={{backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)", backgroundSize: "8px 8px"}}
+                />
+                <span className={`relative z-10 text-lg font-bold tracking-tight ${member.text}`}>
+                  {member.initials}
+                </span>
               </div>
 
-              <div className="text-xs text-gray-500 font-medium tracking-widest uppercase mb-1">
-                {member.field}
+              <div className="flex items-center gap-2 mb-1">
+                <div className="text-xs text-gray-500 font-medium tracking-widest uppercase">
+                  {member.field}
+                </div>
               </div>
               <h3 className="text-lg font-bold text-black mb-1">{member.name}</h3>
               <p className="text-sm text-gray-500 mb-3">{member.role}</p>
-              <p className="text-sm text-gray-600 leading-relaxed">{member.bio}</p>
+              <p className="text-sm text-gray-600 leading-relaxed flex-1">{member.bio}</p>
 
               <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
-                <span className="text-xs text-gray-400">View profile</span>
-                <svg
-                  className="w-4 h-4 text-gray-400 group-hover:text-black transition-colors"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                <span className="text-xs font-mono text-gray-400">
+                  Lead: <span className="text-black font-semibold">{member.project}</span>
+                </span>
+                <a
+                  href={`mailto:research@dxtlabs.ai?subject=Re: ${encodeURIComponent(member.name)}`}
+                  className="text-xs text-gray-400 hover:text-black transition-colors flex items-center gap-1"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
+                  Contact
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </a>
               </div>
             </div>
             </RevealOnScroll>
