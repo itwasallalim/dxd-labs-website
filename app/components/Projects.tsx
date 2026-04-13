@@ -59,6 +59,16 @@ const projects = [
     link: "#publications",
     linkLabel: "Read paper",
   },
+  {
+    id: "VIBECHECK",
+    name: "VIBECHECK",
+    tagline: "Mental Wellness Frequency Platform",
+    description: "A biocomputing application that plays calibrated radio frequencies and measures user response to generate a real-time Mental Wellness Score, mapping Schumann and ELF bands to emotional states and recommending personalized wellness interventions.",
+    status: "Beta",
+    progress: 74,
+    link: "https://github.com/itwasallalim/VibeCheck-repo",
+    linkLabel: "GitHub",
+  },
 ];
 
 const statusColors: Record<string, string> = {
@@ -81,7 +91,7 @@ export default function Projects() {
             </h2>
           </div>
           <p className="text-gray-500 max-w-sm">
-            Six flagship research initiatives pushing the boundaries of what biological computing can achieve.
+            Seven flagship research initiatives pushing the boundaries of what biological computing can achieve.
           </p>
         </div>
 

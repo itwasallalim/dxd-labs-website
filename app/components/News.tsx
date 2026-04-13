@@ -3,6 +3,12 @@ import RevealOnScroll from "./RevealOnScroll";
 const news = [
   {
     date: "Apr 2026",
+    tag: "Launch",
+    title: "VibeCheck enters Beta — frequency-based mental wellness platform",
+    body: "DXTLabs launches VibeCheck, a biocomputing application that plays calibrated Schumann and ELF radio frequencies and generates real-time Mental Wellness Scores from user physiological response. The platform includes a personalized wellness center recommendation engine.",
+  },
+  {
+    date: "Apr 2026",
     tag: "Publication",
     title: "CORTEX framework paper accepted at Nature Neuroscience",
     body: "Our paper on real-time cortical activity translation into computational graphs has been accepted for publication, marking a key milestone in biological computing formalization.",
@@ -40,8 +46,9 @@ const news = [
 ];
 
 const tagColors: Record<string, string> = {
-  Publication: "bg-black text-white",
-  Funding: "bg-gray-800 text-white",
+  Launch: "bg-black text-white",
+  Publication: "bg-gray-800 text-white",
+  Funding: "bg-gray-700 text-white",
   Milestone: "bg-gray-600 text-white",
   Partnership: "bg-gray-400 text-white",
   "Open Source": "bg-gray-200 text-black",

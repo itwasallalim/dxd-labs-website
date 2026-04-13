@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 const STATS = [
   { value: 47, suffix: "", label: "Peer-reviewed Publications" },
-  { value: 6, suffix: "", label: "Active Research Projects" },
+  { value: 7, suffix: "", label: "Active Research Projects" },
   { value: 4.2, suffix: "M", label: "in Research Funding", prefix: "$" },
   { value: 18, suffix: "+", label: "Research Partners Worldwide" },
 ];
